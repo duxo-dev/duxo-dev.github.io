@@ -152,7 +152,7 @@
 
         <div style="margin-top:12px" class="link-list">
           <a href="https://www.youtube.com/@Duxo._.W" target="_blank" rel="noopener">YouTube Channel</a>
-          <a href="https://discord.gg/ftqBjDv8NV" target="_blank" rel="noopener">Discord (add link)</a>
+          <a href="https://discord.gg/ftqBjDv8NV" target="_blank" rel="noopener">Discord Server!</a>
         </div>
       </div>
 
@@ -193,13 +193,12 @@
               </div>
 
               <div style="font-size:13px;color:var(--muted);">
-                If you want the site to automatically fetch the latest video, add a YouTube Data API key (see the comments in the HTML). Otherwise paste a video ID into the <code>data-video-id</code> attribute on the <code>#video-embed</code> div.
               </div>
             </div>
           </div>
 
           <div class="card" style="margin-top:var(--gap);">
-            <h3 style="margin-top:0">About Duxo</h3>
+            <h3 style="margin-top:0">About Me</h3>
             <p class="meta">I am just a silly guy, who loves to be silly.. did I mention I am silly?</p>
           </div>
         </div>
@@ -208,7 +207,7 @@
         <div>
           <div class="card" style="margin-top:var(--gap);">
             <strong>Contact</strong>
-            <p class="meta">Business inquiries: <a href="mailto:you@domain.com" style="color:var(--muted)">you@domain.com</a></p>
+            <p class="meta">Business inquiries: <a href="mailto:duxos101@gmail.com" style="color:var(--muted)">you@domain.com</a></p>
           </div>
         </div>
       </div>
