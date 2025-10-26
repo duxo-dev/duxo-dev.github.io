@@ -153,8 +153,7 @@
 
         <div style="margin-top:12px" class="link-list">
           <a href="https://www.youtube.com/@Duxo._.W" target="_blank" rel="noopener">YouTube Channel</a>
-          <a href="#" target="_blank" rel="noopener">Twitter / X (add link)</a>
-          <a href="#" target="_blank" rel="noopener">Discord (add link)</a>
+          <a href="https://discord.gg/ftqBjDv8NV" target="_blank" rel="noopener">Discord (add link)</a>
         </div>
       </div>
 
@@ -202,22 +201,12 @@
 
           <div class="card" style="margin-top:var(--gap);">
             <h3 style="margin-top:0">About Duxo</h3>
-            <p class="meta">Short channel description goes here. Replace this with your real bio, upload schedule, or recent announcements.</p>
+            <p class="meta">I am just a silly guy, who loves to be silly.. did I mention I am silly?</p>
           </div>
         </div>
 
         <!-- RIGHT: sidebar -->
         <div>
-          <div class="card">
-            <strong>Subscribe & social</strong>
-            <p class="meta">Stay in touch — add your other social links here.</p>
-            <div style="height:14px"></div>
-            <!-- YouTube Subscribe Button (works without API) -->
-            <div>
-              <div id="yt-subscribe" data-channel="Duxo" data-layout="default" data-count="default"></div>
-            </div>
-          </div>
-
           <div class="card" style="margin-top:var(--gap);">
             <strong>Contact</strong>
             <p class="meta">Business inquiries: <a href="mailto:you@domain.com" style="color:var(--muted)">you@domain.com</a></p>
@@ -254,7 +243,7 @@
      **********************************************************************/
 
     // ---- CONFIGURE HERE ----
-    const YOUTUBE_API_KEY = ""; // <-- put your YouTube Data API v3 key here (optional)
+    const YOUTUBE_API_KEY = "AIzaSyBbV0i7Ma9SE1qiLfUqnzCESr1LM1Ny2Mk"; // <-- put your YouTube Data API v3 key here (optional)
     const CHANNEL_HANDLE = "@Duxo._.W"; // the handle you gave
     const CHANNEL_URL = "https://www.youtube.com/@Duxo._.W";
     // ------------------------
@@ -367,24 +356,5 @@
         }
       })();
     }
-
-    /**********************************************************************
-     * OPTIONAL: Insert YouTube's official subscribe button script.
-     * (This adds a small subscribe widget if you want it.)
-     **********************************************************************/
-    (function addYtSubscribe(){
-      const s = document.createElement('script');
-      s.src = "https://apis.google.com/js/platform.js";
-      s.async = true;
-      s.defer = true;
-      document.body.appendChild(s);
-
-      // Create a small subscribe button target
-      const container = document.getElementById('yt-subscribe');
-      // Use the channel handle or channel name; for better results, replace with channel ID if known.
-      container.innerHTML = '<div class="g-ytsubscribe" data-channel="' + encodeURIComponent('Duxo') + '" data-layout="default" data-count="default"></div>';
-      // The platform.js script will render this automatically when loaded.
-    })();
-  </script>
 </body>
 </html>
