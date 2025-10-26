@@ -154,7 +154,7 @@
 </head>
 <body>
   <!-- Notification bell -->
-  <div class="notification" id="notif-bell" title="Go to Subscriber Race!">🔔</div>
+  <div class="notification" id="notif-bell" title="Go to Subscriber Race!">Sub Race!</div>
 
   <div class="wrap">
     <!-- LEFT -->
