@@ -1,7 +1,7 @@
 # This is like my website or something idk
 
 # SUBSCRIBER RACE
-<!DOCTYPE html>
+
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -60,9 +60,9 @@
     const channels = [
       { id: "UCSI1_ltjUIvSxCbj4i8Svfw", name: "Duxo" },
       { id: "UCvc9Aun4GKXiHLWOlGhHzCg", name: "Alexory" },
-      { id: "UCq-Fj5jknLsUf-MWSy4_brA", name: "MarioGames1" },
-      { id: "UCq-Fj5jknLsUf-MWSy4_brA", name: "Cabbage838" },
-      { id: "UCq-Fj5jknLsUf-MWSy4_brA", name: "ChickenGamer77" }
+      { id: "UCl08pZ2UAzwhyu4USN_cxMQ", name: "MarioGames1" },
+      { id: "UCzqw16Y9c_TLVZuC03ZcCUw", name: "Cabbage838" },
+      { id: "UCKH43t9U9TlXXI8WtVKF8gw", name: "ChickenGamer77" }
     ];
 
     async function fetchChannelData(channelId) {
