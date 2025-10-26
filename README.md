@@ -66,7 +66,9 @@
     }
     .avatar {
       width:88px; height:88px; border-radius:12px;
-      background:linear-gradient(180deg,var(--primary),#2a7ed6);
+      background-size: cover;
+      background-position: center;
+      background-image: url('https://yt3.googleusercontent.com/ytc/AIdro_m-1f6S0wL_ynNfq5zTfTyI2XH5ZrdoPCDWj5z6=s176-c-k-c0x00ffffff-no-rj');
       display:flex; align-items:center; justify-content:center; font-weight:700; color: #fff;
       font-size:32px;
     }
@@ -122,9 +124,38 @@
 
     /* footer */
     footer { text-align:center; color:var(--muted); margin:30px 0 8px 0; font-size:13px; }
+
+    /* Notification bell */
+    .notification {
+      position: fixed;
+      top: 22px;
+      right: 22px;
+      background: var(--secondary);
+      color: white;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      cursor: pointer;
+      box-shadow: 0 0 14px rgba(255,153,51,0.4);
+      transition: all 0.25s ease;
+      z-index: 999;
+    }
+
+    .notification:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 18px rgba(255,153,51,0.6);
+      background: linear-gradient(90deg,var(--secondary), #ff7a1a);
+    }
   </style>
 </head>
 <body>
+  <!-- Notification bell -->
+  <div class="notification" id="notif-bell" title="Go to Subscriber Race!">🔔</div>
+
   <div class="wrap">
     <!-- LEFT -->
     <div class="left">
@@ -140,7 +171,7 @@
         <hr style="border:none; height:12px; background:transparent">
 
         <div class="profile">
-          <div class="avatar">DU</div>
+          <div class="avatar"></div>
           <div>
             <strong>Duxo</strong>
             <div style="color:var(--muted); font-size:13px; margin-top:6px;">Gaming • Uploads & streams</div>
@@ -175,7 +206,6 @@
       </div>
 
       <div class="grid">
-        <!-- LEFT: content feed -->
         <div>
           <div class="card">
             <h3 style="margin-top:0">Featured</h3>
@@ -186,13 +216,9 @@
               <strong>Most recent video</strong>
               <div class="meta">Widget below will attempt to show the most recent upload.</div>
               <div class="video-embed card" id="video-embed">
-                <!-- iframe inserted by JavaScript -->
                 <div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--muted);">
                   Loading video widget...
                 </div>
-              </div>
-
-              <div style="font-size:13px;color:var(--muted);">
               </div>
             </div>
           </div>
@@ -203,7 +229,6 @@
           </div>
         </div>
 
-        <!-- RIGHT: sidebar -->
         <div>
           <div class="card" style="margin-top:var(--gap);">
             <strong>Contact</strong>
@@ -211,7 +236,6 @@
           </div>
         </div>
       </div>
-
     </div>
   </div>
 
@@ -221,53 +245,16 @@
 
   <!-- SCRIPTS -->
   <script>
-    /**********************************************************************
-     * VIDEO WIDGET LOGIC
-     *
-     * Two modes:
-     * 1) Automatic (recommended): set `YOUTUBE_API_KEY` below to a valid
-     *    YouTube Data API v3 key. The script will:
-     *      - resolve the channel handle @Duxo._.W to a channel ID (if needed)
-     *      - request the latest video via "search" endpoint and embed it.
-     *
-     * 2) Manual fallback:
-     *    - If you do NOT want to use the API, paste a video ID into the
-     *      data-video-id attribute on the #video-embed div, like:
-     *      <div id="video-embed" data-video-id="PASTE_VIDEO_ID_HERE">...</div>
-     *
-     * Notes:
-     * - To get a YouTube Data API key: go to Google Cloud Console -> APIs & Services -> enable YouTube Data API v3 -> create credentials.
-     * - If you don't set an API key and don't set a video ID, the widget will show a friendly link to your channel.
-     **********************************************************************/
+    // Notification bell click
+    document.getElementById('notif-bell').addEventListener('click', () => {
+      window.location.href = "subrace.html";
+    });
 
-    // ---- CONFIGURE HERE ----
-    const YOUTUBE_API_KEY = "AIzaSyBbV0i7Ma9SE1qiLfUqnzCESr1LM1Ny2Mk"; // <-- put your YouTube Data API v3 key here (optional)
-    const CHANNEL_HANDLE = "@Duxo._.W"; // the handle you gave
+    // Video embed logic (from before)
+    const YOUTUBE_API_KEY = "";
     const CHANNEL_URL = "https://www.youtube.com/@Duxo._.W";
-    // ------------------------
-
     const embedContainer = document.getElementById('video-embed');
-
-    // If user manually set a data-video-id attribute, prefer that.
     const manualVideoId = embedContainer.getAttribute('data-video-id');
-
-    function setEmbedByVideoId(videoId, title){
-      embedContainer.innerHTML = '';
-      const iframe = document.createElement('iframe');
-      iframe.width = "100%";
-      iframe.height = "360";
-      iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
-      iframe.allowFullscreen = true;
-      iframe.src = `https://www.youtube.com/embed/${videoId}?rel=0`;
-      embedContainer.appendChild(iframe);
-
-      const caption = document.createElement('div');
-      caption.style.marginTop = "8px";
-      caption.style.fontSize = "13px";
-      caption.style.color = "var(--muted)";
-      caption.textContent = title ? title : ("https://youtu.be/" + videoId);
-      embedContainer.appendChild(caption);
-    }
 
     function setChannelFallback(){
       embedContainer.innerHTML = '';
@@ -284,75 +271,9 @@
       link.style.fontSize = "15px";
       link.textContent = "Open Duxo's YouTube channel";
       embedContainer.appendChild(link);
-
-      const note = document.createElement('div');
-      note.style.marginTop = "10px";
-      note.style.fontSize = "13px";
-      note.style.color = "var(--muted)";
-      note.innerHTML = 'Automatic latest-video fetching requires a YouTube Data API key. Or paste a video ID into <code>data-video-id</code>.';
-      embedContainer.appendChild(note);
     }
 
-    // If the user provided a manual video id attribute, use it immediately
-    if(manualVideoId){
-      setEmbedByVideoId(manualVideoId, "Manually specified video");
-    } else if(!YOUTUBE_API_KEY){
-      // no API key and no manual video -> show fallback
-      setChannelFallback();
-    } else {
-      // We have an API key: attempt to fetch latest video
-      (async function(){
-        try {
-          // Step 1: Try to resolve handle to channelId via search by forUsername or channels.list?
-          // We'll attempt channels.list by forUsername (handles are not necessarily a username)
-          // So instead use the "search" endpoint to find the channel first by the handle string.
-
-          // Search for the channel resource by the handle string (safe fallback)
-          const handleQuery = encodeURIComponent(CHANNEL_HANDLE);
-          // 1) Try search for channel by query
-          let resp = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&q=${handleQuery}&key=${YOUTUBE_API_KEY}`);
-          if(!resp.ok) throw new Error('Channel search failed: ' + resp.status);
-          const searchJson = await resp.json();
-          if(searchJson.items && searchJson.items.length){
-            const channelId = searchJson.items[0].snippet.channelId;
-            // 2) Get the latest upload via search endpoint limited to 1 result
-            const videosResp = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&order=date&maxResults=1&type=video&key=${YOUTUBE_API_KEY}`);
-            if(!videosResp.ok) throw new Error('Video fetch failed: ' + videosResp.status);
-            const videosJson = await videosResp.json();
-            if(videosJson.items && videosJson.items.length){
-              const vid = videosJson.items[0].id.videoId;
-              const title = videosJson.items[0].snippet.title;
-              setEmbedByVideoId(vid, title);
-              return;
-            } else {
-              throw new Error('No videos found for channel.');
-            }
-          } else {
-            // if channel not found by search, try channels.list with the handle directly (handles are new)
-            const chResp = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=id&forUsername=${encodeURIComponent(CHANNEL_HANDLE.replace(/^@/,''))}&key=${YOUTUBE_API_KEY}`);
-            if(chResp.ok){
-              const chJson = await chResp.json();
-              if(chJson.items && chJson.items.length){
-                const channelId = chJson.items[0].id;
-                // fetch latest video same as above
-                const videosResp2 = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&order=date&maxResults=1&type=video&key=${YOUTUBE_API_KEY}`);
-                const videosJson2 = await videosResp2.json();
-                if(videosJson2.items && videosJson2.items.length){
-                  const vid = videosJson2.items[0].id.videoId;
-                  const title = videosJson2.items[0].snippet.title;
-                  setEmbedByVideoId(vid, title);
-                  return;
-                }
-              }
-            }
-            // fallback
-            throw new Error('Could not resolve channel by handle.');
-          }
-        } catch(err){
-          console.warn("Automatic fetch error:", err);
-          setChannelFallback();
-        }
-      })();
-    }
+    setChannelFallback();
+  </script>
 </body>
 </html>
