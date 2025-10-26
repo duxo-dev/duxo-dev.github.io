@@ -1,59 +1,134 @@
-# This is like my website or something idk
-
-# SUBSCRIBER RACE
-
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>YouTube Live Leaderboard</title>
+  <title>Subscriber Race</title>
   <style>
+    /* === GLOBAL STYLES === */
     body {
-      font-family: Arial, sans-serif;
-      background: #0f0f0f;
-      color: white;
+      font-family: "Poppins", Arial, sans-serif;
+      background: radial-gradient(circle at top, #1a1a1a, #0a0a0a);
+      color: #fff;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 1rem;
+      min-height: 100vh;
+      margin: 0;
       padding: 2rem;
+      overflow-x: hidden;
     }
+
+    h1 {
+      font-size: 2.5rem;
+      letter-spacing: 2px;
+      text-align: center;
+      margin-bottom: 2rem;
+      color: #ff4d00;
+      text-shadow: 0 0 15px rgba(255, 77, 0, 0.8);
+    }
+
+    /* === LEADERBOARD === */
     .leaderboard {
       display: flex;
       flex-direction: column;
-      gap: 1rem;
-      width: 400px;
+      gap: 1.2rem;
+      width: min(95%, 600px);
     }
+
     .channel {
       display: flex;
       align-items: center;
       gap: 1rem;
-      background: #181818;
-      padding: 1rem;
-      border-radius: 12px;
-      box-shadow: 0 0 10px rgba(255,255,255,0.1);
+      background: linear-gradient(135deg, #161616, #1f1f1f);
+      padding: 1rem 1.2rem;
+      border-radius: 14px;
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.05);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      position: relative;
+      overflow: hidden;
     }
+
+    .channel:hover {
+      transform: scale(1.03);
+      box-shadow: 0 0 25px rgba(255, 77, 0, 0.5);
+    }
+
+    .channel::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -150%;
+      width: 150%;
+      height: 100%;
+      background: linear-gradient(120deg, transparent, rgba(255, 77, 0, 0.3), transparent);
+      transform: skewX(-25deg);
+      animation: shine 3s infinite;
+    }
+
+    @keyframes shine {
+      0% { left: -150%; }
+      50% { left: 150%; }
+      100% { left: 150%; }
+    }
+
     .channel img {
-      width: 64px;
-      height: 64px;
+      width: 72px;
+      height: 72px;
       border-radius: 50%;
+      border: 3px solid #ff4d00;
+      flex-shrink: 0;
     }
+
     .channel-info {
       flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
     }
+
     .channel-info h2 {
       margin: 0;
-      font-size: 1.2rem;
+      font-size: 1.3rem;
+      color: #fff;
     }
+
     .channel-info p {
-      margin: 0;
-      color: #aaa;
+      margin: 0.2rem 0 0;
+      color: #bbb;
+      font-size: 0.95rem;
+    }
+
+    /* === RANK COLORS === */
+    .rank-1 {
+      border-left: 5px solid gold;
+      background: linear-gradient(135deg, #3a2a00, #1a1200);
+    }
+
+    .rank-2 {
+      border-left: 5px solid silver;
+      background: linear-gradient(135deg, #2a2a2a, #111);
+    }
+
+    .rank-3 {
+      border-left: 5px solid #cd7f32;
+      background: linear-gradient(135deg, #2b1a0f, #111);
+    }
+
+    /* === FOOTER === */
+    footer {
+      margin-top: 3rem;
+      color: #777;
+      font-size: 0.9rem;
     }
   </style>
 </head>
 <body>
-  <h1>YouTube Subscriber Leaderboard</h1>
-  <div class="leaderboard" id="leaderboard"></div>
+  <h1>🔥 YouTube Subscriber Race 🔥</h1>
+  <div class="leaderboard" id="leaderboard">
+    <p>Loading leaderboard...</p>
+  </div>
+  <footer>Updates every 60 seconds · Powered by YouTube Data API</footer>
 
   <script>
     const API_KEY = "AIzaSyBbV0i7Ma9SE1qiLfUqnzCESr1LM1Ny2Mk";
@@ -72,7 +147,7 @@
       const item = data.items[0];
       return {
         name: item.snippet.title,
-        pic: item.snippet.thumbnails.default.url,
+        pic: item.snippet.thumbnails.high.url,
         subs: parseInt(item.statistics.subscriberCount)
       };
     }
@@ -81,26 +156,30 @@
       const leaderboardDiv = document.getElementById("leaderboard");
       leaderboardDiv.innerHTML = "<p>Loading...</p>";
 
-      const results = await Promise.all(channels.map(c => fetchChannelData(c.id)));
-      results.sort((a, b) => b.subs - a.subs);
+      try {
+        const results = await Promise.all(channels.map(c => fetchChannelData(c.id)));
+        results.sort((a, b) => b.subs - a.subs);
 
-      leaderboardDiv.innerHTML = "";
-      results.forEach((ch, i) => {
-        leaderboardDiv.innerHTML += `
-          <div class="channel">
-            <img src="${ch.pic}" alt="${ch.name}" />
-            <div class="channel-info">
-              <h2>#${i + 1} ${ch.name}</h2>
-              <p>${ch.subs.toLocaleString()} subscribers</p>
+        leaderboardDiv.innerHTML = "";
+        results.forEach((ch, i) => {
+          leaderboardDiv.innerHTML += `
+            <div class="channel rank-${i + 1}">
+              <img src="${ch.pic}" alt="${ch.name}" />
+              <div class="channel-info">
+                <h2>#${i + 1} ${ch.name}</h2>
+                <p>${ch.subs.toLocaleString()} subscribers</p>
+              </div>
             </div>
-          </div>
-        `;
-      });
+          `;
+        });
+      } catch (err) {
+        leaderboardDiv.innerHTML = "<p style='color:red;'>Error loading leaderboard. Check console for details.</p>";
+        console.error(err);
+      }
     }
 
     updateLeaderboard();
-    setInterval(updateLeaderboard, 60000); // refresh every 60 seconds
+    setInterval(updateLeaderboard, 60000);
   </script>
 </body>
 </html>
-
