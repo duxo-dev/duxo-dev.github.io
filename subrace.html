@@ -120,16 +120,58 @@
       color: #777;
       font-size: 0.9rem;
     }
+
+    /* === USER INFO === */
+    #user-info {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 2rem;
+    }
+
+    #user-info img {
+      border-radius: 50%;
+      width: 100px;
+      height: 100px;
+      margin-bottom: 0.5rem;
+    }
+
+    #discord-login {
+      padding: 0.6rem 1.2rem;
+      font-size: 1rem;
+      background-color: #7289da;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      cursor: pointer;
+      margin-bottom: 2rem;
+    }
   </style>
 </head>
 <body>
   <h1>🔥 YouTube Subscriber Race 🔥</h1>
+
+  <!-- Discord Login Button -->
+  <div id="login-section">
+    <button id="discord-login">Login with Discord</button>
+  </div>
+
+  <!-- User Info Display -->
+  <div id="user-info">
+    <h2>Welcome, <span id="username"></span>!</h2>
+    <img id="avatar" src="" alt="Avatar">
+    <p>Coins: <span id="coins"></span></p>
+  </div>
+
+  <!-- Leaderboard -->
   <div class="leaderboard" id="leaderboard">
     <p>Loading leaderboard...</p>
   </div>
+
   <footer>Updates every 60 seconds · Powered by YouTube Data API</footer>
 
   <script>
+    // --- YOUTUBE LEADERBOARD ---
     const API_KEY = "AIzaSyBbV0i7Ma9SE1qiLfUqnzCESr1LM1Ny2Mk";
     const channels = [
       { id: "UCSI1_ltjUIvSxCbj4i8Svfw", name: "Duxo" },
@@ -155,71 +197,62 @@
     async function updateLeaderboard() {
       const leaderboardDiv = document.getElementById("leaderboard");
       leaderboardDiv.innerHTML = "<p>Loading...</p>";
-
       try {
         const results = await Promise.all(channels.map(c => fetchChannelData(c.id)));
-        results.sort((a, b) => b.subs - a.subs);
-
+        results.sort((a,b) => b.subs - a.subs);
         leaderboardDiv.innerHTML = "";
         results.forEach((ch, i) => {
           leaderboardDiv.innerHTML += `
-            <div class="channel rank-${i + 1}">
+            <div class="channel rank-${i+1}">
               <img src="${ch.pic}" alt="${ch.name}" />
               <div class="channel-info">
-                <h2>#${i + 1} ${ch.name}</h2>
+                <h2>#${i+1} ${ch.name}</h2>
                 <p>${ch.subs.toLocaleString()} subscribers</p>
               </div>
             </div>
           `;
         });
-      } catch (err) {
+      } catch(err) {
         leaderboardDiv.innerHTML = "<p style='color:red;'>Error loading leaderboard. Check console for details.</p>";
         console.error(err);
       }
     }
-
     updateLeaderboard();
     setInterval(updateLeaderboard, 60000);
+
+    // --- DISCORD LOGIN / FORCE LOGIN ---
+    const loginButton = document.getElementById("discord-login");
+    const userInfoDiv = document.getElementById("user-info");
+    const usernameSpan = document.getElementById("username");
+    const avatarImg = document.getElementById("avatar");
+    const coinsSpan = document.getElementById("coins");
+
+    loginButton.addEventListener("click", () => {
+      window.location.href = "https://duxo-dev-backend.vercel.app/api/login";
+    });
+
+    async function requireLogin() {
+      try {
+        const res = await fetch("https://duxo-dev-backend.vercel.app/api/me", { credentials: "include" });
+        if (!res.ok) throw new Error("Not logged in");
+        const json = await res.json();
+        if (json.loggedIn) {
+          loginButton.style.display = "none";
+          userInfoDiv.style.display = "flex";
+          usernameSpan.textContent = json.user.username;
+          avatarImg.src = `https://cdn.discordapp.com/avatars/${json.user.id}/${json.user.avatar}.png`;
+          coinsSpan.textContent = json.user.coins;
+        } else {
+          window.location.href = "https://duxo-dev-backend.vercel.app/api/login";
+        }
+      } catch(e) {
+        console.error("Login required", e);
+        window.location.href = "https://duxo-dev-backend.vercel.app/api/login";
+      }
+    }
+
+    // Run on page load
+    requireLogin();
   </script>
-  <!-- Discord Login Button -->
-<div id="login-section">
-  <button id="discord-login">Login with Discord</button>
-</div>
-
-<!-- User Info Display -->
-<div id="user-info" style="display:none;">
-  <h2>Welcome, <span id="username"></span>!</h2>
-  <img id="avatar" src="" alt="Avatar" style="border-radius:50%; width:100px; height:100px;">
-  <p>Coins: <span id="coins"></span></p>
-</div>
-
-<script>
-  const loginButton = document.getElementById("discord-login");
-  const userInfoDiv = document.getElementById("user-info");
-  const usernameSpan = document.getElementById("username");
-  const avatarImg = document.getElementById("avatar");
-  const coinsSpan = document.getElementById("coins");
-
-  // 1️⃣ Redirect user to Vercel backend login
-  loginButton.addEventListener("click", () => {
-    window.location.href = "https://duxo-dev-backend.vercel.app/api/login";
-  });
-
-  // 2️⃣ Check if user data is in URL (after Discord OAuth redirect)
-  const params = new URLSearchParams(window.location.search);
-  if (params.has("user")) {
-    const user = JSON.parse(decodeURIComponent(params.get("user")));
-    
-    // Show user info
-    usernameSpan.textContent = user.username;
-    avatarImg.src = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`;
-    coinsSpan.textContent = 1000; // Starting coins
-
-    // Hide login button, show user info
-    document.getElementById("login-section").style.display = "none";
-    userInfoDiv.style.display = "block";
-  }
-</script>
-
 </body>
 </html>
