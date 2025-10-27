@@ -168,7 +168,7 @@
     <p>Loading leaderboard...</p>
   </div>
 
-  <footer>Updates every 60 seconds · Powered by YouTube Data API</footer>
+  <footer>Updates every 60 seconds · Powered by YouTube Data API, Made with Love by Duxo</footer>
 
   <script>
     // --- YOUTUBE LEADERBOARD ---
@@ -220,39 +220,6 @@
     updateLeaderboard();
     setInterval(updateLeaderboard, 60000);
 
-    // --- DISCORD LOGIN / FORCE LOGIN ---
-    const loginButton = document.getElementById("discord-login");
-    const userInfoDiv = document.getElementById("user-info");
-    const usernameSpan = document.getElementById("username");
-    const avatarImg = document.getElementById("avatar");
-    const coinsSpan = document.getElementById("coins");
-
-    loginButton.addEventListener("click", () => {
-      window.location.href = "https://duxo-dev-backend.vercel.app/api/login";
-    });
-
-    async function requireLogin() {
-      try {
-        const res = await fetch("https://duxo-dev-backend.vercel.app/api/me", { credentials: "include" });
-        if (!res.ok) throw new Error("Not logged in");
-        const json = await res.json();
-        if (json.loggedIn) {
-          loginButton.style.display = "none";
-          userInfoDiv.style.display = "flex";
-          usernameSpan.textContent = json.user.username;
-          avatarImg.src = `https://cdn.discordapp.com/avatars/${json.user.id}/${json.user.avatar}.png`;
-          coinsSpan.textContent = json.user.coins;
-        } else {
-          window.location.href = "https://duxo-dev-backend.vercel.app/api/login";
-        }
-      } catch(e) {
-        console.error("Login required", e);
-        window.location.href = "https://duxo-dev-backend.vercel.app/api/login";
-      }
-    }
-
-    // Run on page load
-    requireLogin();
   </script>
 </body>
 </html>
