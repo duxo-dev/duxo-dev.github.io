@@ -181,5 +181,45 @@
     updateLeaderboard();
     setInterval(updateLeaderboard, 60000);
   </script>
+  <!-- Discord Login Button -->
+<div id="login-section">
+  <button id="discord-login">Login with Discord</button>
+</div>
+
+<!-- User Info Display -->
+<div id="user-info" style="display:none;">
+  <h2>Welcome, <span id="username"></span>!</h2>
+  <img id="avatar" src="" alt="Avatar" style="border-radius:50%; width:100px; height:100px;">
+  <p>Coins: <span id="coins"></span></p>
+</div>
+
+<script>
+  const loginButton = document.getElementById("discord-login");
+  const userInfoDiv = document.getElementById("user-info");
+  const usernameSpan = document.getElementById("username");
+  const avatarImg = document.getElementById("avatar");
+  const coinsSpan = document.getElementById("coins");
+
+  // 1️⃣ Redirect user to Vercel backend login
+  loginButton.addEventListener("click", () => {
+    window.location.href = "https://duxo-dev-backend.vercel.app/api/login";
+  });
+
+  // 2️⃣ Check if user data is in URL (after Discord OAuth redirect)
+  const params = new URLSearchParams(window.location.search);
+  if (params.has("user")) {
+    const user = JSON.parse(decodeURIComponent(params.get("user")));
+    
+    // Show user info
+    usernameSpan.textContent = user.username;
+    avatarImg.src = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`;
+    coinsSpan.textContent = 1000; // Starting coins
+
+    // Hide login button, show user info
+    document.getElementById("login-section").style.display = "none";
+    userInfoDiv.style.display = "block";
+  }
+</script>
+
 </body>
 </html>
