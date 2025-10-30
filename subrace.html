@@ -35,7 +35,9 @@
       width: min(95%, 600px);
     }
 
-    .channel {
+    a.channel {
+      text-decoration: none;
+      color: inherit;
       display: flex;
       align-items: center;
       gap: 1rem;
@@ -48,12 +50,12 @@
       overflow: hidden;
     }
 
-    .channel:hover {
+    a.channel:hover {
       transform: scale(1.03);
       box-shadow: 0 0 25px rgba(255, 77, 0, 0.5);
     }
 
-    .channel::before {
+    a.channel::before {
       content: "";
       position: absolute;
       top: 0;
@@ -71,7 +73,7 @@
       100% { left: 150%; }
     }
 
-    .channel img {
+    a.channel img {
       width: 72px;
       height: 72px;
       border-radius: 50%;
@@ -186,6 +188,7 @@
       const data = await res.json();
       const item = data.items[0];
       return {
+        id: channelId,
         name: item.snippet.title,
         pic: item.snippet.thumbnails.high.url,
         subs: parseInt(item.statistics.subscriberCount)
@@ -205,33 +208,32 @@
         const results = await Promise.all(channels.map(c => fetchChannelData(c.id)));
         results.sort((a,b) => b.subs - a.subs);
 
-        const topChannels = results.slice(0, -2);  // everyone except bottom two
-        const bottomTwo = results.slice(-2);       // bottom two for danger zone
+        const topChannels = results.slice(0, -2);
+        const bottomTwo = results.slice(-2);
 
         leaderboardDiv.innerHTML = "";
         topChannels.forEach((ch, i) => {
           leaderboardDiv.innerHTML += `
-            <div class="channel rank-${i+1}">
+            <a class="channel rank-${i+1}" href="https://www.youtube.com/channel/${ch.id}" target="_blank">
               <img src="${ch.pic}" alt="${ch.name}" />
               <div class="channel-info">
                 <h2>#${i+1} ${ch.name}</h2>
                 <p>${ch.subs.toLocaleString()} subscribers</p>
               </div>
-            </div>
+            </a>
           `;
         });
 
-        // Display bottom 2 in Danger Zone
         dangerZone.style.display = "block";
         bottomTwo.forEach((ch) => {
           dangerDiv.innerHTML += `
-            <div class="channel danger">
+            <a class="channel danger" href="https://www.youtube.com/channel/${ch.id}" target="_blank">
               <img src="${ch.pic}" alt="${ch.name}" />
               <div class="channel-info">
                 <h2>${ch.name}</h2>
                 <p>${ch.subs.toLocaleString()} subscribers</p>
               </div>
-            </div>
+            </a>
           `;
         });
       } catch(err) {
