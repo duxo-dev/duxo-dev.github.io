@@ -115,7 +115,7 @@
     }
 
     /* === DANGER ZONE === */
-    .danger-zone { /* NEW */
+    .danger-zone {
       border: 2px solid #ff0000;
       box-shadow: 0 0 20px rgba(255, 0, 0, 0.6);
       border-radius: 16px;
@@ -127,12 +127,12 @@
       animation: dangerPulse 1.5s infinite alternate;
     }
 
-    @keyframes dangerPulse { /* NEW */
+    @keyframes dangerPulse {
       from { box-shadow: 0 0 10px rgba(255, 0, 0, 0.4); }
       to { box-shadow: 0 0 25px rgba(255, 0, 0, 0.9); }
     }
 
-    .danger-zone h3 { /* NEW */
+    .danger-zone h3 {
       text-align: center;
       color: #ff4d4d;
       font-size: 1.5rem;
@@ -161,7 +161,7 @@
     <p>Loading leaderboard...</p>
   </div>
 
-  <!-- NEW: DANGER ZONE BOX -->
+  <!-- DANGER ZONE BOX -->
   <div class="danger-zone" id="danger-zone" style="display:none;">
     <h3>⚠️ DANGER ZONE ⚠️</h3>
     <div id="danger-channels"></div>
@@ -205,8 +205,11 @@
         const results = await Promise.all(channels.map(c => fetchChannelData(c.id)));
         results.sort((a,b) => b.subs - a.subs);
 
+        const topChannels = results.slice(0, -2);  // everyone except bottom two
+        const bottomTwo = results.slice(-2);       // bottom two for danger zone
+
         leaderboardDiv.innerHTML = "";
-        results.forEach((ch, i) => {
+        topChannels.forEach((ch, i) => {
           leaderboardDiv.innerHTML += `
             <div class="channel rank-${i+1}">
               <img src="${ch.pic}" alt="${ch.name}" />
@@ -218,10 +221,9 @@
           `;
         });
 
-        // Get bottom 2 for danger zone
-        const bottomTwo = results.slice(-2);
+        // Display bottom 2 in Danger Zone
         dangerZone.style.display = "block";
-        bottomTwo.forEach((ch, i) => {
+        bottomTwo.forEach((ch) => {
           dangerDiv.innerHTML += `
             <div class="channel danger">
               <img src="${ch.pic}" alt="${ch.name}" />
