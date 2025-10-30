@@ -79,7 +79,7 @@
       flex-shrink: 0;
     }
 
-    .-info {
+    .channel-info {
       flex: 1;
       display: flex;
       flex-direction: column;
@@ -114,43 +114,62 @@
       background: linear-gradient(135deg, #2b1a0f, #111);
     }
 
+    /* === DANGER ZONE === */
+    .danger-zone { /* NEW */
+      border: 2px solid #ff0000;
+      box-shadow: 0 0 20px rgba(255, 0, 0, 0.6);
+      border-radius: 16px;
+      padding: 1rem;
+      margin-top: 2rem;
+      width: min(95%, 600px);
+      background: rgba(30, 0, 0, 0.6);
+      position: relative;
+      animation: dangerPulse 1.5s infinite alternate;
+    }
+
+    @keyframes dangerPulse { /* NEW */
+      from { box-shadow: 0 0 10px rgba(255, 0, 0, 0.4); }
+      to { box-shadow: 0 0 25px rgba(255, 0, 0, 0.9); }
+    }
+
+    .danger-zone h3 { /* NEW */
+      text-align: center;
+      color: #ff4d4d;
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      text-shadow: 0 0 10px #ff0000;
+    }
+
+    .danger {
+      border: 2px solid #ff0000 !important;
+      box-shadow: 0 0 15px rgba(255, 0, 0, 0.7) !important;
+    }
+
     /* === FOOTER === */
     footer {
       margin-top: 3rem;
       color: #777;
       font-size: 0.9rem;
     }
-
-    /* === USER INFO === */
-    #user-info {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin-top: 2rem;
-    }
-
-    #user-info img {
-      border-radius: 50%;
-      width: 100px;
-      height: 100px;
-      margin-bottom: 0.5rem;
-    }
   </style>
 </head>
 <body>
   <h1>🔥 YouTube Subscriber Race 🔥</h1>
-
-
 
   <!-- Leaderboard -->
   <div class="leaderboard" id="leaderboard">
     <p>Loading leaderboard...</p>
   </div>
 
+  <!-- NEW: DANGER ZONE BOX -->
+  <div class="danger-zone" id="danger-zone" style="display:none;">
+    <h3>⚠️ DANGER ZONE ⚠️</h3>
+    <div id="danger-channels"></div>
+  </div>
+
   <footer>Updates every 60 seconds · Powered by YouTube Data API, Made with Love by Duxo</footer>
 
   <script>
-    // --- YOUTUBE LEADERBOARD ---
     const API_KEY = "AIzaSyAGOtJaDI8L71gbboAxbU7XeJAmc-V8Bkk";
     const channels = [
       { id: "UCSI1_ltjUIvSxCbj4i8Svfw", name: "Duxo" },
@@ -175,10 +194,17 @@
 
     async function updateLeaderboard() {
       const leaderboardDiv = document.getElementById("leaderboard");
+      const dangerDiv = document.getElementById("danger-channels");
+      const dangerZone = document.getElementById("danger-zone");
+
       leaderboardDiv.innerHTML = "<p>Loading...</p>";
+      dangerDiv.innerHTML = "";
+      dangerZone.style.display = "none";
+
       try {
         const results = await Promise.all(channels.map(c => fetchChannelData(c.id)));
         results.sort((a,b) => b.subs - a.subs);
+
         leaderboardDiv.innerHTML = "";
         results.forEach((ch, i) => {
           leaderboardDiv.innerHTML += `
@@ -191,14 +217,29 @@
             </div>
           `;
         });
+
+        // Get bottom 2 for danger zone
+        const bottomTwo = results.slice(-2);
+        dangerZone.style.display = "block";
+        bottomTwo.forEach((ch, i) => {
+          dangerDiv.innerHTML += `
+            <div class="channel danger">
+              <img src="${ch.pic}" alt="${ch.name}" />
+              <div class="channel-info">
+                <h2>${ch.name}</h2>
+                <p>${ch.subs.toLocaleString()} subscribers</p>
+              </div>
+            </div>
+          `;
+        });
       } catch(err) {
         leaderboardDiv.innerHTML = "<p style='color:red;'>Error loading leaderboard. Check console for details.</p>";
         console.error(err);
       }
     }
+
     updateLeaderboard();
     setInterval(updateLeaderboard, 60000);
-
   </script>
 </body>
 </html>
