@@ -1,1 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>YouTube Subscriber Race + Betting</title>
+  <style>
+    body {
+      font-family: "Poppins", Arial, sans-serif;
+      background: radial-gradient(circle at top, #1a1a1a, #0a0a0a);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 2rem;
+    }
+    h1 {
+      font-size: 2.5rem;
+      letter-spacing: 2px;
+      text-align: center;
+      margin-bottom: 2rem;
+      color: #ff4d00;
+      text-shadow: 0 0 15px rgba(255, 77, 0, 0.8);
+    }
+    .leaderboard {
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+      width: min(95%, 600px);
+    }
+    a.channel {
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: linear-gradient(135deg, #161616, #1f1f1f);
+      padding: 1rem 1.2rem;
+      border-radius: 14px;
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.05);
+      position: relative;
+    }
+    a.channel img {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      border: 3px solid #ff4d00;
+    }
+    .channel-info {
+      flex: 1;
+    }
+    .channel-info h2 {
+      margin: 0;
+      font-size: 1.3rem;
+      color: #fff;
+    }
+    .channel-info p {
+      margin: 0.2rem 0 0;
+      color: #bbb;
+      font-size: 0.95rem;
+    }
+    button.bet-btn {
+      margin-top: 0.5rem;
+      background: #ff4d00;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 0.4rem 1rem;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    button.bet-btn:hover { background: #ff7233; }
+    footer { margin-top: 3rem; color: #777; font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+  <h1>🔥 YouTube Subscriber Race 🔥</h1>
+  <div id="user-info"></div>
+  <div class="leaderboard" id="leaderboard">
+    <p>Loading leaderboard...</p>
+  </div>
+  <footer>Powered by Discord OAuth & YouTube API</footer>
 
+  <script>
+    const API_KEY = "YOUR_YOUTUBE_API_KEY";
+    const BACKEND_URL = "http://localhost:3000";
+    const channels = [
+      { id: "UCSI1_ltjUIvSxCbj4i8Svfw", name: "Duxo" },
+      { id: "UCvc9Aun4GKXiHLWOlGhHzCg", name: "Alexory" },
+      { id: "UCl08pZ2UAzwhyu4USN_cxMQ", name: "MarioGames1" },
+      { id: "UCzqw16Y9c_TLVZuC03ZcCUw", name: "Cabbage838" },
+      { id: "UCKH43t9U9TlXXI8WtVKF8gw", name: "ChickenGamer77" },
+      { id: "UCDFtmWp77DJqFeLxl04iQTw", name: "FireBird" }
+    ];
+    let user = null;
+
+    async function fetchChannelData(id) {
+      const url = `https://www.googleapis.com/youtube/v3/channels?part=snippet,statistics&id=${id}&key=${API_KEY}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      const item = data.items[0];
+      return {
+        id,
+        name: item.snippet.title,
+        pic: item.snippet.thumbnails.high.url,
+        subs: parseInt(item.statistics.subscriberCount),
+      };
+    }
+
+    async function updateLeaderboard() {
+      const board = document.getElementById("leaderboard");
+      board.innerHTML = "<p>Loading...</p>";
+
+      const results = await Promise.all(channels.map(c => fetchChannelData(c.id)));
+      results.sort((a,b) => b.subs - a.subs);
+
+      board.innerHTML = "";
+      for (const ch of results) {
+        const betRes = await fetch(`${BACKEND_URL}/api/bets/${ch.id}`);
+        const { totalBets } = await betRes.json();
+        board.innerHTML += `
+          <a class="channel">
+            <img src="${ch.pic}" />
+            <div class="channel-info">
+              <h2>${ch.name}</h2>
+              <p>${ch.subs.toLocaleString()} subscribers</p>
+              <p id="bet-total-${ch.id}">💰 Total Bets: ${totalBets} credits</p>
+              <button class="bet-btn" onclick="placeBet('${ch.id}', '${ch.name}')">Bet</button>
+            </div>
+          </a>
+        `;
+      }
+    }
+
+    async function checkLogin() {
+      const res = await fetch(`${BACKEND_URL}/api/me`, { credentials: "include" });
+      const userDiv = document.getElementById("user-info");
+      if (res.ok) {
+        const data = await res.json();
+        user = data;
+        userDiv.innerHTML = `
+          👤 Logged in as <b>${user.username}</b> · 💰 ${user.credits} credits
+          <button onclick="logout()">Logout</button>
+        `;
+      } else {
+        user = null;
+        userDiv.innerHTML = `
+          <button onclick="login()">Login with Discord</button>
+        `;
+      }
+    }
+
+    function login() { window.location = `${BACKEND_URL}/auth/discord`; }
+    async function logout() {
+      await fetch(`${BACKEND_URL}/logout`, { credentials: "include" });
+      checkLogin();
+    }
+
+    async function placeBet(channelId, name) {
+      if (!user) return alert("Please log in with Discord first!");
+      const amount = prompt(`You have ${user.credits} credits.\nHow many do you want to bet on ${name}?`);
+      if (!amount || amount <= 0) return;
+      const res = await fetch(`${BACKEND_URL}/api/bet`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ channelId, amount })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        alert("Bet placed!");
+        document.getElementById(`bet-total-${channelId}`).innerText = `💰 Total Bets: ${data.totalBets} credits`;
+        checkLogin();
+      } else {
+        alert(data.error || "Error placing bet.");
+      }
+    }
+
+    checkLogin();
+    updateLeaderboard();
+    setInterval(updateLeaderboard, 60000);
+  </script>
+</body>
+</html>
