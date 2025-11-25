@@ -1,3 +1,4 @@
+<!-- Updated HTML with only one channel in the danger zone -->
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -147,7 +148,6 @@
       box-shadow: 0 0 15px rgba(255, 0, 0, 0.7) !important;
     }
 
-    /* === FOOTER === */
     footer {
       margin-top: 3rem;
       color: #777;
@@ -158,12 +158,10 @@
 <body>
   <h1>🔥 YouTube Subscriber Race 🔥</h1>
 
-  <!-- Leaderboard -->
   <div class="leaderboard" id="leaderboard">
     <p>Loading leaderboard...</p>
   </div>
 
-  <!-- DANGER ZONE BOX -->
   <div class="danger-zone" id="danger-zone" style="display:none;">
     <h3>⚠️ DANGER ZONE ⚠️</h3>
     <div id="danger-channels"></div>
@@ -205,8 +203,8 @@
         const results = await Promise.all(channels.map(c => fetchChannelData(c.id)));
         results.sort((a,b) => b.subs - a.subs);
 
-        const topChannels = results.slice(0, -2);
-        const bottomTwo = results.slice(-2);
+        const topChannels = results.slice(0, results.length - 1);
+        const bottomOne = results[results.length - 1];
 
         leaderboardDiv.innerHTML = "";
         topChannels.forEach((ch, i) => {
@@ -222,17 +220,16 @@
         });
 
         dangerZone.style.display = "block";
-        bottomTwo.forEach((ch) => {
-          dangerDiv.innerHTML += `
-            <a class="channel danger" href="https://www.youtube.com/channel/${ch.id}" target="_blank">
-              <img src="${ch.pic}" alt="${ch.name}" />
-              <div class="channel-info">
-                <h2>${ch.name}</h2>
-                <p>${ch.subs.toLocaleString()} subscribers</p>
-              </div>
-            </a>
-          `;
-        });
+        dangerDiv.innerHTML += `
+          <a class="channel danger" href="https://www.youtube.com/channel/${bottomOne.id}" target="_blank">
+            <img src="${bottomOne.pic}" alt="${bottomOne.name}" />
+            <div class="channel-info">
+              <h2>${bottomOne.name}</h2>
+              <p>${bottomOne.subs.toLocaleString()} subscribers</p>
+            </div>
+          </a>
+        `;
+
       } catch(err) {
         leaderboardDiv.innerHTML = "<p style='color:red;'>Error loading leaderboard. Check console for details.</p>";
         console.error(err);
